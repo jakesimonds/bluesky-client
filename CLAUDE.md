@@ -3,6 +3,11 @@
 - developer is a JUNIOR DEV, wants to LEARN so always explain everything
 
 
+# Eventual goals (to keep in mind)
+- eventaully want this to be app too so thinking react native
+- 
+
+
 # Development Workflow
 
 ## How We're Working
@@ -10,12 +15,11 @@
 ### Claude (AI Assistant)
 - Works in the remote environment `/home/user/bluesky-client`
 - Makes code changes
-- Commits and pushes to branch `claude/fix-rollup-dependencies-011CUqfBCyRQmk8aGcP6uCSm`
 - Can run builds and tests in the remote environment
 
 ### You (Developer)
 - Working on your local machine
-- Pull down changes with: `git pull origin claude/fix-rollup-dependencies-011CUqfBCyRQmk8aGcP6uCSm`
+- Pull down changes
 - Run the dev server locally: `npm run dev`
 - Test in your local browser
 - Report back what you see/errors you get
@@ -40,10 +44,7 @@
 
 ## Current Status
 
-- ✅ OAuth code implemented and pushed
-- ✅ Fixed for localhost loopback mode
-- 🧪 Testing phase - running on your local machine
-- Debugging any remaining issues together
+- Oauth given up on, we eventually want but sticking with app password for now
 
 ## Common Issues
 
@@ -62,7 +63,3 @@
 - Check the port (should be 3000)
 - Try `http://127.0.0.1:3000` instead of `localhost:3000`
 
-### OAuth errors
-- Check browser console (F12 → Console)
-- Look for `[OAuth]` prefixed logs
-- Share the exact error message with Claude
