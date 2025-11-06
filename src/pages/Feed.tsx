@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { authService } from '../services/auth';
 import type { AppBskyFeedDefs } from '@atproto/api';
 
 export const Feed: React.FC = () => {
@@ -12,8 +11,13 @@ export const Feed: React.FC = () => {
   useEffect(() => {
     const fetchFeed = async () => {
       try {
-        const agent = authService.getAgent();
-        const response = await agent.getTimeline({ limit: 50 });
+        if (!authState.agent) {
+          setError('Not authenticated');
+          setIsLoading(false);
+          return;
+        }
+
+        const response = await authState.agent.getTimeline({ limit: 50 });
         setPosts(response.data.feed);
       } catch (err) {
         setError('Failed to load feed');
@@ -24,7 +28,7 @@ export const Feed: React.FC = () => {
     };
 
     fetchFeed();
-  }, []);
+  }, [authState.agent]);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);

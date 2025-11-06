@@ -1,11 +1,18 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { authService } from '../services/auth';
-import type { AuthState, LoginCredentials } from '../types/auth';
+import { oauthService } from '../services/oauth';
+import { Agent } from '@atproto/api';
+
+interface OAuthAuthState {
+  isAuthenticated: boolean;
+  agent: Agent | null;
+  handle?: string;
+  did?: string;
+}
 
 interface AuthContextType {
-  authState: AuthState;
-  login: (credentials: LoginCredentials) => Promise<void>;
-  logout: () => void;
+  authState: OAuthAuthState;
+  login: (handle: string) => Promise<void>;
+  logout: () => Promise<void>;
   isLoading: boolean;
 }
 
@@ -24,21 +31,38 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [authState, setAuthState] = useState<AuthState>({
+  const [authState, setAuthState] = useState<OAuthAuthState>({
     isAuthenticated: false,
+    agent: null,
   });
   const [isLoading, setIsLoading] = useState(true);
 
-  // Try to resume session on mount
+  // Initialize OAuth on mount
   useEffect(() => {
     const initAuth = async () => {
       try {
-        const session = await authService.resumeSession();
-        if (session) {
-          setAuthState(session);
+        const result = await oauthService.init();
+
+        if (result.isAuthenticated && result.agent) {
+          // Fetch user profile to get handle and DID
+          try {
+            const profile = await oauthService.getUserProfile();
+            setAuthState({
+              isAuthenticated: true,
+              agent: result.agent,
+              handle: profile.handle,
+              did: profile.did,
+            });
+          } catch (error) {
+            console.error('Failed to fetch profile:', error);
+            setAuthState({
+              isAuthenticated: true,
+              agent: result.agent,
+            });
+          }
         }
       } catch (error) {
-        console.error('Failed to resume session:', error);
+        console.error('Failed to initialize OAuth:', error);
       } finally {
         setIsLoading(false);
       }
@@ -47,15 +71,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     initAuth();
   }, []);
 
-  const login = async (credentials: LoginCredentials) => {
-    const newAuthState = await authService.login(credentials);
-    setAuthState(newAuthState);
+  const login = async (handle: string) => {
+    await oauthService.login(handle);
   };
 
-  const logout = () => {
-    authService.logout();
+  const logout = async () => {
+    await oauthService.logout();
     setAuthState({
       isAuthenticated: false,
+      agent: null,
     });
   };
 

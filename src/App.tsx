@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { Login } from './pages/Login';
 import { Feed } from './pages/Feed';
+import { OAuthCallback } from './pages/OAuthCallback';
 import { ProtectedRoute } from './components/ProtectedRoute';
 
 const AppRoutes: React.FC = () => {
@@ -16,6 +17,7 @@ const AppRoutes: React.FC = () => {
           authState.isAuthenticated ? <Navigate to="/" replace /> : <Login />
         }
       />
+      <Route path="/oauth/callback" element={<OAuthCallback />} />
       <Route
         path="/"
         element={

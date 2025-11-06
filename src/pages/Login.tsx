@@ -1,14 +1,11 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
 
 export const Login: React.FC = () => {
-  const [identifier, setIdentifier] = useState('');
-  const [password, setPassword] = useState('');
+  const [handle, setHandle] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
-  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -16,11 +13,10 @@ export const Login: React.FC = () => {
     setIsLoading(true);
 
     try {
-      await login({ identifier, password });
-      navigate('/');
+      // OAuth login - will redirect to authorization server
+      await login(handle);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed');
-    } finally {
       setIsLoading(false);
     }
   };
@@ -30,42 +26,42 @@ export const Login: React.FC = () => {
       <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Bluesky Client</h1>
-          <p className="text-gray-600">Sign in to your account</p>
+          <p className="text-gray-600">Sign in with OAuth</p>
+        </div>
+
+        <div className="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div className="flex items-start">
+            <div className="flex-shrink-0">
+              <svg className="h-5 w-5 text-blue-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="ml-3 flex-1">
+              <h3 className="text-sm font-medium text-blue-800">OAuth Authentication</h3>
+              <div className="mt-2 text-sm text-blue-700">
+                <p>No app password needed! Sign in with your regular Bluesky credentials through a secure OAuth flow.</p>
+              </div>
+            </div>
+          </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label htmlFor="identifier" className="block text-sm font-medium text-gray-700 mb-2">
-              Handle or Email
+            <label htmlFor="handle" className="block text-sm font-medium text-gray-700 mb-2">
+              Bluesky Handle
             </label>
             <input
-              id="identifier"
+              id="handle"
               type="text"
-              value={identifier}
-              onChange={(e) => setIdentifier(e.target.value)}
-              placeholder="your.handle or email@example.com"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
-              required
-              disabled={isLoading}
-            />
-          </div>
-
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-              App Password
-            </label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="xxxx-xxxx-xxxx-xxxx"
+              value={handle}
+              onChange={(e) => setHandle(e.target.value)}
+              placeholder="yourname.bsky.social"
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
               required
               disabled={isLoading}
             />
             <p className="mt-2 text-sm text-gray-500">
-              Create an app password in your Bluesky settings
+              Enter your Bluesky handle (e.g., alice.bsky.social)
             </p>
           </div>
 
@@ -80,7 +76,7 @@ export const Login: React.FC = () => {
             disabled={isLoading}
             className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isLoading ? 'Signing in...' : 'Sign In'}
+            {isLoading ? 'Redirecting...' : 'Sign In with OAuth'}
           </button>
         </form>
 
