@@ -9,25 +9,40 @@ export class OAuthService {
   private agent: Agent | null = null;
 
   async init(): Promise<{ isAuthenticated: boolean; agent: Agent | null }> {
+    console.log('[OAuth] Starting initialization...');
+    console.log('[OAuth] Client ID:', CLIENT_ID);
+    console.log('[OAuth] Handle Resolver:', HANDLE_RESOLVER);
+
     try {
       // Initialize the OAuth client
+      console.log('[OAuth] Loading BrowserOAuthClient...');
       this.oauthClient = await BrowserOAuthClient.load({
         clientId: CLIENT_ID,
         handleResolver: HANDLE_RESOLVER,
       });
+      console.log('[OAuth] BrowserOAuthClient loaded successfully');
 
       // Check if we're returning from OAuth callback
+      console.log('[OAuth] Checking for existing session...');
       const result = await this.oauthClient.init();
+      console.log('[OAuth] Init result:', result);
 
       if (result?.session) {
         // User is authenticated
+        console.log('[OAuth] Session found, creating Agent');
         this.agent = new Agent(result.session);
         return { isAuthenticated: true, agent: this.agent };
       }
 
+      console.log('[OAuth] No existing session found');
       return { isAuthenticated: false, agent: null };
     } catch (error) {
-      console.error('OAuth initialization failed:', error);
+      console.error('[OAuth] Initialization failed with error:', error);
+      console.error('[OAuth] Error details:', {
+        name: error instanceof Error ? error.name : 'Unknown',
+        message: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+      });
       return { isAuthenticated: false, agent: null };
     }
   }
