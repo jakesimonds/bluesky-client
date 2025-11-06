@@ -1,8 +1,11 @@
 import { BrowserOAuthClient } from '@atproto/oauth-client-browser';
 import { Agent } from '@atproto/api';
 
-const CLIENT_ID = 'http://localhost:3000/client-metadata.json';
 const HANDLE_RESOLVER = 'https://bsky.social';
+
+// For production, you would use:
+// const CLIENT_ID = 'https://yourdomain.com/client-metadata.json';
+// For localhost development, we use loopback mode (no client_id)
 
 export class OAuthService {
   private oauthClient: BrowserOAuthClient | null = null;
@@ -10,17 +13,19 @@ export class OAuthService {
 
   async init(): Promise<{ isAuthenticated: boolean; agent: Agent | null }> {
     console.log('[OAuth] Starting initialization...');
-    console.log('[OAuth] Client ID:', CLIENT_ID);
+    console.log('[OAuth] Using loopback mode for localhost development');
     console.log('[OAuth] Handle Resolver:', HANDLE_RESOLVER);
 
     try {
       // Initialize the OAuth client
-      console.log('[OAuth] Loading BrowserOAuthClient...');
-      this.oauthClient = await BrowserOAuthClient.load({
-        clientId: CLIENT_ID,
+      console.log('[OAuth] Creating BrowserOAuthClient...');
+
+      // For localhost development, use loopback mode (no clientId)
+      // The OAuth server provides hardcoded client metadata for loopback addresses
+      this.oauthClient = new BrowserOAuthClient({
         handleResolver: HANDLE_RESOLVER,
       });
-      console.log('[OAuth] BrowserOAuthClient loaded successfully');
+      console.log('[OAuth] BrowserOAuthClient created successfully');
 
       // Check if we're returning from OAuth callback
       console.log('[OAuth] Checking for existing session...');
