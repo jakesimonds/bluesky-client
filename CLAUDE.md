@@ -1,3 +1,8 @@
+# Goals for this project: 
+- create a roll-your-own social media client that uses existing stuff and lets us experiment with UI and such
+- developer is a JUNIOR DEV, wants to LEARN so always explain everything
+
+
 # Development Workflow
 
 ## How We're Working
