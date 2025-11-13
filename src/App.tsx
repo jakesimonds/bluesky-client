@@ -6,6 +6,7 @@ import { Login } from './pages/Login';
 import { Feed } from './pages/Feed';
 import { Settings } from './pages/Settings';
 import { Messages } from './pages/Messages';
+import { Profile } from './pages/Profile';
 import { ProtectedRoute } from './components/ProtectedRoute';
 
 const AppRoutes: React.FC = () => {
@@ -40,6 +41,14 @@ const AppRoutes: React.FC = () => {
         element={
           <ProtectedRoute>
             <Messages />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/profile/:handle"
+        element={
+          <ProtectedRoute>
+            <Profile />
           </ProtectedRoute>
         }
       />

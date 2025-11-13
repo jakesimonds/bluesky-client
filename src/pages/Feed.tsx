@@ -4,7 +4,6 @@ import { useBudget } from '../context/BudgetContext';
 import { authService } from '../services/auth';
 import { useNavigate } from 'react-router-dom';
 import type { AppBskyFeedDefs } from '@atproto/api';
-import { ATProtoAppsModal } from '../components/ATProtoAppsModal';
 
 export const Feed: React.FC = () => {
   const { authState, logout } = useAuth();
@@ -19,7 +18,6 @@ export const Feed: React.FC = () => {
   const [viewedPosts, setViewedPosts] = useState<Set<string>>(new Set());
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [replyText, setReplyText] = useState('');
-  const [showAppsModal, setShowAppsModal] = useState(false);
 
   useEffect(() => {
     const fetchFeed = async () => {
@@ -172,13 +170,6 @@ export const Feed: React.FC = () => {
             </div>
             <div className="flex items-center gap-2">
               <button
-                onClick={() => setShowAppsModal(true)}
-                className="px-4 py-2 text-sm font-medium text-indigo-600 hover:bg-indigo-50 rounded-lg transition"
-                title="Explore AT Protocol Apps"
-              >
-                🌐 Apps
-              </button>
-              <button
                 onClick={() => navigate('/messages')}
                 className="px-4 py-2 text-sm font-medium text-purple-600 hover:bg-purple-50 rounded-lg transition"
               >
@@ -274,15 +265,19 @@ export const Feed: React.FC = () => {
                     <img
                       src={author.avatar || 'https://via.placeholder.com/40'}
                       alt={author.displayName || author.handle}
-                      className="w-10 h-10 rounded-full"
+                      className="w-10 h-10 rounded-full cursor-pointer hover:opacity-80 transition"
+                      onClick={() => navigate(`/profile/${author.handle}`)}
                     />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-2 min-w-0">
-                          <span className="font-semibold text-gray-900 truncate">
+                        <div
+                          className="flex items-center space-x-2 min-w-0 cursor-pointer group"
+                          onClick={() => navigate(`/profile/${author.handle}`)}
+                        >
+                          <span className="font-semibold text-gray-900 truncate group-hover:text-blue-600 transition">
                             {author.displayName || author.handle}
                           </span>
-                          <span className="text-gray-500 text-sm truncate">
+                          <span className="text-gray-500 text-sm truncate group-hover:text-blue-600 transition">
                             @{author.handle}
                           </span>
                           <span className="text-gray-400 text-sm">·</span>
@@ -412,9 +407,6 @@ export const Feed: React.FC = () => {
           </div>
         )}
       </main>
-
-      {/* AT Protocol Apps Modal */}
-      <ATProtoAppsModal isOpen={showAppsModal} onClose={() => setShowAppsModal(false)} />
     </div>
   );
 };
