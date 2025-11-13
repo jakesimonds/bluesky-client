@@ -7,7 +7,7 @@ import type { AppBskyFeedDefs } from '@atproto/api';
 
 export const Feed: React.FC = () => {
   const { authState, logout } = useAuth();
-  const { budgetState, recordLike, recordRepost, recordFollow, canViewMorePosts } = useBudget();
+  const { budgetState, recordLike, recordRepost, recordFollow, viewPost, canViewMorePosts } = useBudget();
   const navigate = useNavigate();
   const [posts, setPosts] = useState<AppBskyFeedDefs.FeedViewPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -15,6 +15,9 @@ export const Feed: React.FC = () => {
   const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
   const [repostedPosts, setRepostedPosts] = useState<Set<string>>(new Set());
   const [followedUsers, setFollowedUsers] = useState<Set<string>>(new Set());
+  const [viewedPosts, setViewedPosts] = useState<Set<string>>(new Set());
+  const [replyingTo, setReplyingTo] = useState<string | null>(null);
+  const [replyText, setReplyText] = useState('');
 
   useEffect(() => {
     const fetchFeed = async () => {
@@ -32,6 +35,30 @@ export const Feed: React.FC = () => {
 
     fetchFeed();
   }, []);
+
+  // Track post views with IntersectionObserver
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const postUri = entry.target.getAttribute('data-post-uri');
+            if (postUri && !viewedPosts.has(postUri) && canViewMorePosts) {
+              setViewedPosts(prev => new Set(prev).add(postUri));
+              viewPost();
+            }
+          }
+        });
+      },
+      { threshold: 0.5 } // Post must be 50% visible to count as viewed
+    );
+
+    // Observe all post elements
+    const postElements = document.querySelectorAll('[data-post-uri]');
+    postElements.forEach(el => observer.observe(el));
+
+    return () => observer.disconnect();
+  }, [posts, viewedPosts, canViewMorePosts, viewPost]);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -98,6 +125,36 @@ export const Feed: React.FC = () => {
       recordFollow();
     } catch (err) {
       console.error('Failed to follow user:', err);
+    }
+  };
+
+  const handleReply = async (uri: string, cid: string) => {
+    if (!replyText.trim()) return;
+
+    try {
+      const agent = authService.getAgent();
+      await agent.post({
+        text: replyText,
+        reply: {
+          root: { uri, cid },
+          parent: { uri, cid },
+        },
+      });
+
+      setReplyText('');
+      setReplyingTo(null);
+
+      // Update reply count locally
+      setPosts(prev => prev.map(item =>
+        item.post.uri === uri
+          ? { ...item, post: { ...item.post, replyCount: (item.post.replyCount || 0) + 1 } }
+          : item
+      ));
+
+      // Add budget for commenting
+      recordLike(); // Using like budget for comments, can be adjusted
+    } catch (err) {
+      console.error('Failed to post reply:', err);
     }
   };
 
@@ -181,21 +238,27 @@ export const Feed: React.FC = () => {
 
         {!isLoading && !error && (
           <div className="space-y-4">
-            {posts.slice(0, budgetState.postsViewed + budgetState.postsRemaining).map((item, index) => {
+            {posts.map((item) => {
               const post = item.post;
               const author = post.author;
               const record = post.record as any;
-              const isLocked = index >= budgetState.postsViewed + budgetState.postsRemaining;
+              const isViewed = viewedPosts.has(post.uri);
+              const canView = isViewed || canViewMorePosts;
               const isLiked = likedPosts.has(post.uri);
               const isReposted = repostedPosts.has(post.uri);
               const isFollowing = followedUsers.has(author.did);
+              const isReplying = replyingTo === post.uri;
+
+              if (!canView) {
+                // Hide posts beyond budget
+                return null;
+              }
 
               return (
                 <article
                   key={post.uri}
-                  className={`bg-white rounded-xl border border-gray-200 p-4 hover:shadow-md transition ${
-                    isLocked ? 'opacity-50 blur-sm pointer-events-none' : ''
-                  }`}
+                  data-post-uri={post.uri}
+                  className="bg-white rounded-xl border border-gray-200 p-4 hover:shadow-md transition"
                 >
                   {/* Author info */}
                   <div className="flex items-start space-x-3">
@@ -240,10 +303,13 @@ export const Feed: React.FC = () => {
 
                       {/* Engagement buttons */}
                       <div className="mt-3 flex items-center space-x-6">
-                        <span className="flex items-center space-x-1 text-gray-500 text-sm">
+                        <button
+                          onClick={() => setReplyingTo(isReplying ? null : post.uri)}
+                          className="flex items-center space-x-1 text-gray-500 hover:text-blue-600 text-sm transition"
+                        >
                           <span>💬</span>
                           <span>{post.replyCount || 0}</span>
-                        </span>
+                        </button>
 
                         <button
                           onClick={() => handleRepost(post.uri, post.cid)}
@@ -271,6 +337,30 @@ export const Feed: React.FC = () => {
                           <span>{post.likeCount || 0}</span>
                         </button>
                       </div>
+
+                      {/* Reply input */}
+                      {isReplying && (
+                        <div className="mt-3 pt-3 border-t border-gray-200">
+                          <div className="flex space-x-2">
+                            <input
+                              type="text"
+                              value={replyText}
+                              onChange={(e) => setReplyText(e.target.value)}
+                              onKeyPress={(e) => e.key === 'Enter' && handleReply(post.uri, post.cid)}
+                              placeholder="Write a reply..."
+                              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              autoFocus
+                            />
+                            <button
+                              onClick={() => handleReply(post.uri, post.cid)}
+                              disabled={!replyText.trim()}
+                              className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition disabled:bg-gray-300 disabled:cursor-not-allowed"
+                            >
+                              Reply
+                            </button>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </article>
@@ -278,22 +368,25 @@ export const Feed: React.FC = () => {
             })}
 
             {/* Budget exhausted message */}
-            {!canViewMorePosts && posts.length > budgetState.postsViewed + budgetState.postsRemaining && (
+            {!canViewMorePosts && posts.length > viewedPosts.size && (
               <div className="bg-amber-50 border-2 border-amber-300 rounded-xl p-6 text-center">
                 <div className="text-4xl mb-3">🚫</div>
                 <h3 className="text-xl font-bold text-gray-900 mb-2">Post Budget Exhausted!</h3>
                 <p className="text-gray-700 mb-4">
-                  You've reached your post viewing limit. Engage with posts above to unlock more!
+                  You've used up your post viewing budget. Engage with posts above to unlock more!
                 </p>
-                <div className="flex justify-center gap-4 text-sm">
+                <div className="flex justify-center gap-4 text-sm flex-wrap">
                   <div className="bg-white px-4 py-2 rounded-lg border border-amber-200">
-                    Like a post: <span className="font-bold text-blue-600">+{budgetState.settings.postsPerLike} posts</span>
+                    Like a post: <span className="font-bold text-red-600">+{budgetState.settings.postsPerLike} posts</span>
                   </div>
                   <div className="bg-white px-4 py-2 rounded-lg border border-amber-200">
                     Repost: <span className="font-bold text-green-600">+{budgetState.settings.postsPerRepost} posts</span>
                   </div>
                   <div className="bg-white px-4 py-2 rounded-lg border border-amber-200">
                     Follow: <span className="font-bold text-purple-600">+{budgetState.settings.postsPerFollow} posts</span>
+                  </div>
+                  <div className="bg-white px-4 py-2 rounded-lg border border-amber-200">
+                    Reply: <span className="font-bold text-blue-600">+{budgetState.settings.postsPerLike} posts</span>
                   </div>
                 </div>
               </div>
