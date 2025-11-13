@@ -1,0 +1,44 @@
+{
+  "lexicon": 1,
+  "id": "social.antiLurk.labels",
+  "defs": {
+    "main": {
+      "type": "token",
+      "description": "Label definitions for the Anti-Lurk engagement badge system. These labels can be self-applied by users who opt into displaying their engagement statistics."
+    },
+    "engagementTier": {
+      "type": "string",
+      "knownValues": [
+        "engagement-bronze",
+        "engagement-silver",
+        "engagement-gold",
+        "engagement-platinum",
+        "engagement-diamond"
+      ],
+      "description": "Labels indicating user engagement tier based on their activity level"
+    },
+    "participationStyle": {
+      "type": "string",
+      "knownValues": [
+        "super-engager",
+        "content-creator",
+        "community-builder",
+        "conversation-starter",
+        "active-participant",
+        "social-butterfly"
+      ],
+      "description": "Labels describing the user's participation style on the platform"
+    },
+    "achievementBadges": {
+      "type": "string",
+      "knownValues": [
+        "streak-champion",
+        "reply-master",
+        "generous-liker",
+        "repost-king",
+        "network-connector"
+      ],
+      "description": "Achievement-based labels earned through specific engagement milestones"
+    }
+  }
+}
