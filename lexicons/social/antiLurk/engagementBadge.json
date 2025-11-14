@@ -1,0 +1,99 @@
+{
+  "lexicon": 1,
+  "id": "social.antiLurk.engagementBadge",
+  "defs": {
+    "main": {
+      "type": "record",
+      "description": "A record containing user engagement statistics that can be displayed as a public badge. Users opt-in to sharing these metrics to demonstrate their social participation.",
+      "key": "self",
+      "record": {
+        "type": "object",
+        "required": ["createdAt", "updatedAt", "visibility"],
+        "properties": {
+          "postsViewed": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Total number of posts the user has viewed"
+          },
+          "likesGiven": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Total number of likes the user has given"
+          },
+          "repostsGiven": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Total number of reposts the user has made"
+          },
+          "repliesGiven": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Total number of replies/comments the user has written"
+          },
+          "followsGiven": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Total number of users the user has followed"
+          },
+          "engagementScore": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Calculated engagement score based on all interactions"
+          },
+          "streakDays": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Number of consecutive days with engagement activity"
+          },
+          "lastEngagementAt": {
+            "type": "string",
+            "format": "datetime",
+            "description": "Timestamp of the user's last engagement action"
+          },
+          "visibility": {
+            "type": "string",
+            "enum": ["public", "followers", "private"],
+            "description": "Who can see this engagement badge"
+          },
+          "visibleMetrics": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "postsViewed",
+                "likesGiven",
+                "repostsGiven",
+                "repliesGiven",
+                "followsGiven",
+                "engagementScore",
+                "streakDays"
+              ]
+            },
+            "description": "Array of metric names that the user wants to display publicly"
+          },
+          "badgeStyle": {
+            "type": "string",
+            "enum": ["compact", "detailed", "minimal"],
+            "default": "compact",
+            "description": "Visual style preference for badge display"
+          },
+          "tier": {
+            "type": "string",
+            "enum": ["bronze", "silver", "gold", "platinum", "diamond"],
+            "description": "Achievement tier based on engagement levels"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "datetime",
+            "description": "Timestamp when the badge was first created"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "datetime",
+            "description": "Timestamp when the badge was last updated"
+          }
+        }
+      }
+    }
+  }
+}

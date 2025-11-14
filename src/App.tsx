@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { BudgetProvider } from './context/BudgetContext';
+import { EngagementBadgeProvider } from './context/EngagementBadgeContext';
 import { Login } from './pages/Login';
 import { Feed } from './pages/Feed';
 import { Settings } from './pages/Settings';
@@ -46,6 +47,7 @@ const AppRoutes: React.FC = () => {
       />
       <Route
         path="/profile/:handle"
+
         element={
           <ProtectedRoute>
             <Profile />
@@ -62,7 +64,9 @@ function App() {
     <Router>
       <AuthProvider>
         <BudgetProvider>
-          <AppRoutes />
+          <EngagementBadgeProvider>
+            <AppRoutes />
+          </EngagementBadgeProvider>
         </BudgetProvider>
       </AuthProvider>
     </Router>

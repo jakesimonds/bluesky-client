@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useBudget } from '../context/BudgetContext';
+import { useEngagementBadge } from '../context/EngagementBadgeContext';
 import { authService } from '../services/auth';
 import { useNavigate } from 'react-router-dom';
 import type { AppBskyFeedDefs } from '@atproto/api';
@@ -8,6 +9,7 @@ import type { AppBskyFeedDefs } from '@atproto/api';
 export const Feed: React.FC = () => {
   const { authState, logout } = useAuth();
   const { budgetState, recordLike, recordRepost, recordFollow, viewPost, canViewMorePosts } = useBudget();
+  const { incrementStat } = useEngagementBadge();
   const navigate = useNavigate();
   const [posts, setPosts] = useState<AppBskyFeedDefs.FeedViewPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -46,6 +48,8 @@ export const Feed: React.FC = () => {
             if (postUri && !viewedPosts.has(postUri) && canViewMorePosts) {
               setViewedPosts(prev => new Set(prev).add(postUri));
               viewPost();
+              // Track view in engagement badge
+              incrementStat('postsViewed');
             }
           }
         });
@@ -58,7 +62,7 @@ export const Feed: React.FC = () => {
     postElements.forEach(el => observer.observe(el));
 
     return () => observer.disconnect();
-  }, [posts, viewedPosts, canViewMorePosts, viewPost]);
+  }, [posts, viewedPosts, canViewMorePosts, viewPost, incrementStat]);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -83,6 +87,8 @@ export const Feed: React.FC = () => {
       await agent.like(uri, cid);
       setLikedPosts(prev => new Set(prev).add(uri));
       recordLike();
+      // Track like in engagement badge
+      incrementStat('likesGiven');
 
       // Update post like count locally
       setPosts(prev => prev.map(item =>
@@ -103,6 +109,8 @@ export const Feed: React.FC = () => {
       await agent.repost(uri, cid);
       setRepostedPosts(prev => new Set(prev).add(uri));
       recordRepost();
+      // Track repost in engagement badge
+      incrementStat('repostsGiven');
 
       // Update post repost count locally
       setPosts(prev => prev.map(item =>
@@ -123,6 +131,8 @@ export const Feed: React.FC = () => {
       await agent.follow(did);
       setFollowedUsers(prev => new Set(prev).add(did));
       recordFollow();
+      // Track follow in engagement badge
+      incrementStat('followsGiven');
     } catch (err) {
       console.error('Failed to follow user:', err);
     }
@@ -153,6 +163,8 @@ export const Feed: React.FC = () => {
 
       // Add budget for commenting
       recordLike(); // Using like budget for comments, can be adjusted
+      // Track reply in engagement badge
+      incrementStat('repliesGiven');
     } catch (err) {
       console.error('Failed to post reply:', err);
     }
@@ -169,6 +181,12 @@ export const Feed: React.FC = () => {
               <p className="text-sm text-gray-600">@{authState.handle}</p>
             </div>
             <div className="flex items-center gap-2">
+              <button
+                onClick={() => navigate('/profile')}
+                className="px-4 py-2 text-sm font-medium text-emerald-600 hover:bg-emerald-50 rounded-lg transition"
+              >
+                Profile
+              </button>
               <button
                 onClick={() => navigate('/messages')}
                 className="px-4 py-2 text-sm font-medium text-purple-600 hover:bg-purple-50 rounded-lg transition"
