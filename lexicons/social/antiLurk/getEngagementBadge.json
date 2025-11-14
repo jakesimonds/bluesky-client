@@ -1,0 +1,51 @@
+{
+  "lexicon": 1,
+  "id": "social.antiLurk.getEngagementBadge",
+  "defs": {
+    "main": {
+      "type": "query",
+      "description": "Fetch a user's engagement badge if they have opted into displaying it publicly",
+      "parameters": {
+        "type": "params",
+        "required": ["did"],
+        "properties": {
+          "did": {
+            "type": "string",
+            "description": "The DID of the user whose engagement badge to fetch"
+          }
+        }
+      },
+      "output": {
+        "encoding": "application/json",
+        "schema": {
+          "type": "object",
+          "required": ["badge"],
+          "properties": {
+            "badge": {
+              "type": "ref",
+              "ref": "social.antiLurk.engagementBadge",
+              "description": "The user's engagement badge record"
+            },
+            "labels": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Array of label values applied to this user"
+            }
+          }
+        }
+      },
+      "errors": [
+        {
+          "name": "BadgeNotFound",
+          "description": "User has not created an engagement badge or has set it to private"
+        },
+        {
+          "name": "NotAuthorized",
+          "description": "Viewer is not authorized to see this badge (e.g., followers-only)"
+        }
+      ]
+    }
+  }
+}

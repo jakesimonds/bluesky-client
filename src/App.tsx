@@ -2,10 +2,12 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { BudgetProvider } from './context/BudgetContext';
+import { EngagementBadgeProvider } from './context/EngagementBadgeContext';
 import { Login } from './pages/Login';
 import { Feed } from './pages/Feed';
 import { Settings } from './pages/Settings';
 import { Messages } from './pages/Messages';
+import { Profile } from './pages/Profile';
 import { ProtectedRoute } from './components/ProtectedRoute';
 
 const AppRoutes: React.FC = () => {
@@ -43,6 +45,14 @@ const AppRoutes: React.FC = () => {
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <Profile />
+          </ProtectedRoute>
+        }
+      />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
@@ -53,7 +63,9 @@ function App() {
     <Router>
       <AuthProvider>
         <BudgetProvider>
-          <AppRoutes />
+          <EngagementBadgeProvider>
+            <AppRoutes />
+          </EngagementBadgeProvider>
         </BudgetProvider>
       </AuthProvider>
     </Router>

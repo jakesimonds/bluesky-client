@@ -169,6 +169,28 @@ export const Settings: React.FC = () => {
           </button>
         </div>
 
+        {/* Engagement Badge Promo */}
+        <div className="mt-6 bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-purple-300 rounded-lg p-6">
+          <div className="flex items-start gap-4">
+            <div className="text-4xl">🏆</div>
+            <div className="flex-1">
+              <h3 className="font-bold text-purple-900 mb-2 text-lg">
+                Share Your Engagement Badge
+              </h3>
+              <p className="text-sm text-purple-800 mb-3">
+                Turn your social participation into a badge you can share on your profile!
+                Track likes, replies, reposts, and earn achievement tiers from Bronze to Diamond.
+              </p>
+              <button
+                onClick={() => navigate('/profile')}
+                className="bg-purple-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-purple-700 transition"
+              >
+                View Your Profile & Badge →
+              </button>
+            </div>
+          </div>
+        </div>
+
         {/* Info Box */}
         <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
           <h3 className="font-semibold text-blue-900 mb-2">How Anti-Lurk Works</h3>
