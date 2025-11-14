@@ -46,7 +46,8 @@ const AppRoutes: React.FC = () => {
         }
       />
       <Route
-        path="/profile"
+        path="/profile/:handle"
+
         element={
           <ProtectedRoute>
             <Profile />

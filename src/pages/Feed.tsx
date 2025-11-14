@@ -283,15 +283,19 @@ export const Feed: React.FC = () => {
                     <img
                       src={author.avatar || 'https://via.placeholder.com/40'}
                       alt={author.displayName || author.handle}
-                      className="w-10 h-10 rounded-full"
+                      className="w-10 h-10 rounded-full cursor-pointer hover:opacity-80 transition"
+                      onClick={() => navigate(`/profile/${author.handle}`)}
                     />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-2 min-w-0">
-                          <span className="font-semibold text-gray-900 truncate">
+                        <div
+                          className="flex items-center space-x-2 min-w-0 cursor-pointer group"
+                          onClick={() => navigate(`/profile/${author.handle}`)}
+                        >
+                          <span className="font-semibold text-gray-900 truncate group-hover:text-blue-600 transition">
                             {author.displayName || author.handle}
                           </span>
-                          <span className="text-gray-500 text-sm truncate">
+                          <span className="text-gray-500 text-sm truncate group-hover:text-blue-600 transition">
                             @{author.handle}
                           </span>
                           <span className="text-gray-400 text-sm">·</span>

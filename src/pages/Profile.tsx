@@ -13,6 +13,89 @@ export const Profile: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
+      <header className="bg-white border-b border-gray-200">
+        <div className="max-w-2xl mx-auto px-4 py-4">
+          <button
+            onClick={() => navigate('/')}
+            className="flex items-center text-gray-600 hover:text-gray-900"
+          >
+            ← Back to Feed
+          </button>
+        </div>
+      </header>
+
+      {/* Profile */}
+      <main className="max-w-2xl mx-auto px-4 py-6">
+        {/* Profile Header */}
+        <div className="bg-white rounded-xl border border-gray-200 p-6 mb-4">
+          <div className="flex items-start space-x-4">
+            <img
+              src={profile.avatar || 'https://via.placeholder.com/100'}
+              alt={profile.displayName || profile.handle}
+              className="w-24 h-24 rounded-full"
+            />
+            <div className="flex-1">
+              <h1 className="text-2xl font-bold text-gray-900">
+                {profile.displayName || profile.handle}
+              </h1>
+              <p className="text-gray-600">@{profile.handle}</p>
+
+              <div className="flex gap-4 mt-3 text-sm">
+                <span>
+                  <strong>{profile.followersCount || 0}</strong> followers
+                </span>
+                <span>
+                  <strong>{profile.followsCount || 0}</strong> following
+                </span>
+                <span>
+                  <strong>{profile.postsCount || 0}</strong> posts
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {profile.description && (
+            <p className="mt-4 text-gray-700 whitespace-pre-wrap">{profile.description}</p>
+          )}
+        </div>
+
+        {/* Apps Section */}
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <h2 className="text-xl font-bold text-gray-900 mb-4">AT Protocol Apps Used</h2>
+
+          {apps.length > 0 ? (
+            <div className="space-y-3">
+              {apps.map((app) => (
+                <div
+                  key={app.schema}
+                  className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition"
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="font-semibold text-gray-900">{app.appName}</h3>
+                      <p className="text-xs text-gray-500 font-mono">{app.schema}</p>
+                    </div>
+                    <span className="text-sm text-gray-600">
+                      {app.recordCount > 0 ? 'Active' : 'No records'}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <p className="text-gray-600">No apps detected</p>
+              <p className="text-sm text-gray-500 mt-2">
+                This user primarily uses Bluesky
+              </p>
+            </div>
+          )}
+
+          <div className="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-3">
+            <p className="text-sm text-blue-800">
+              <strong>Note:</strong> This shows apps based on record schemas found in the user's PDS.
+              The AT Protocol allows users to use the same identity across multiple apps.
+=======
       <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
